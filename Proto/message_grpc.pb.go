@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IntercambioDataNodeClient interface {
 	GuardarData(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Data, error)
-	SolicitarData(ctx context.Context, opts ...grpc.CallOption) (IntercambioDataNode_SolicitarDataClient, error)
+	SolicitarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*DataID, error)
 }
 
 type intercambioDataNodeClient struct {
@@ -43,35 +43,13 @@ func (c *intercambioDataNodeClient) GuardarData(ctx context.Context, in *Message
 	return out, nil
 }
 
-func (c *intercambioDataNodeClient) SolicitarData(ctx context.Context, opts ...grpc.CallOption) (IntercambioDataNode_SolicitarDataClient, error) {
-	stream, err := c.cc.NewStream(ctx, &IntercambioDataNode_ServiceDesc.Streams[0], "/grpc.IntercambioDataNode/SolicitarData", opts...)
+func (c *intercambioDataNodeClient) SolicitarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*DataID, error) {
+	out := new(DataID)
+	err := c.cc.Invoke(ctx, "/grpc.IntercambioDataNode/SolicitarData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &intercambioDataNodeSolicitarDataClient{stream}
-	return x, nil
-}
-
-type IntercambioDataNode_SolicitarDataClient interface {
-	Send(*Data) error
-	Recv() (*DataID, error)
-	grpc.ClientStream
-}
-
-type intercambioDataNodeSolicitarDataClient struct {
-	grpc.ClientStream
-}
-
-func (x *intercambioDataNodeSolicitarDataClient) Send(m *Data) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *intercambioDataNodeSolicitarDataClient) Recv() (*DataID, error) {
-	m := new(DataID)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // IntercambioDataNodeServer is the server API for IntercambioDataNode service.
@@ -79,7 +57,7 @@ func (x *intercambioDataNodeSolicitarDataClient) Recv() (*DataID, error) {
 // for forward compatibility
 type IntercambioDataNodeServer interface {
 	GuardarData(context.Context, *Message) (*Data, error)
-	SolicitarData(IntercambioDataNode_SolicitarDataServer) error
+	SolicitarData(context.Context, *Data) (*DataID, error)
 	mustEmbedUnimplementedIntercambioDataNodeServer()
 }
 
@@ -90,8 +68,8 @@ type UnimplementedIntercambioDataNodeServer struct {
 func (UnimplementedIntercambioDataNodeServer) GuardarData(context.Context, *Message) (*Data, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GuardarData not implemented")
 }
-func (UnimplementedIntercambioDataNodeServer) SolicitarData(IntercambioDataNode_SolicitarDataServer) error {
-	return status.Errorf(codes.Unimplemented, "method SolicitarData not implemented")
+func (UnimplementedIntercambioDataNodeServer) SolicitarData(context.Context, *Data) (*DataID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SolicitarData not implemented")
 }
 func (UnimplementedIntercambioDataNodeServer) mustEmbedUnimplementedIntercambioDataNodeServer() {}
 
@@ -124,30 +102,22 @@ func _IntercambioDataNode_GuardarData_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IntercambioDataNode_SolicitarData_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(IntercambioDataNodeServer).SolicitarData(&intercambioDataNodeSolicitarDataServer{stream})
-}
-
-type IntercambioDataNode_SolicitarDataServer interface {
-	Send(*DataID) error
-	Recv() (*Data, error)
-	grpc.ServerStream
-}
-
-type intercambioDataNodeSolicitarDataServer struct {
-	grpc.ServerStream
-}
-
-func (x *intercambioDataNodeSolicitarDataServer) Send(m *DataID) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *intercambioDataNodeSolicitarDataServer) Recv() (*Data, error) {
-	m := new(Data)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _IntercambioDataNode_SolicitarData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Data)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(IntercambioDataNodeServer).SolicitarData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.IntercambioDataNode/SolicitarData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntercambioDataNodeServer).SolicitarData(ctx, req.(*Data))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // IntercambioDataNode_ServiceDesc is the grpc.ServiceDesc for IntercambioDataNode service.
@@ -161,15 +131,12 @@ var IntercambioDataNode_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GuardarData",
 			Handler:    _IntercambioDataNode_GuardarData_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "SolicitarData",
-			Handler:       _IntercambioDataNode_SolicitarData_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
+			MethodName: "SolicitarData",
+			Handler:    _IntercambioDataNode_SolicitarData_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "Proto/message.proto",
 }
 

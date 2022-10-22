@@ -6,7 +6,7 @@ package grpc;
 
 service IntercambioDataNode {
 	rpc GuardarData (Message) returns (Data) {}	
-	rpc SolicitarData (stream Data) returns (stream DataID) {} 
+	rpc SolicitarData (Data) returns (DataID) {} 
 }
 
 service IntercambioCombine {
