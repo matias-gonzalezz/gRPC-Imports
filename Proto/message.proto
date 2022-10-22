@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+// tal vez package main
+package grpc; 
+
+service Test {
+	rpc TestCom (TestMessage) returns (TestMessage) {}	
+}
+
+message TestMessage {
+	string message = 1;
+}
