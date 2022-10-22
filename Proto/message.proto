@@ -2,13 +2,40 @@ syntax = "proto3";
 
 option go_package = ".";
 
-// tal vez package main
 package grpc; 
 
-service Test {
-	rpc TestMessage (Message) returns (Message) {}	
+service IntercambioData {
+	rpc GuardarData (Message) returns (Data) {}	
+	rpc SolicitarData (stream Data) returns (stream DataID) {} 
+}
+
+service IntercambioCombine {
+	rpc EnvioData (Data) returns (Message) {}
+}
+
+service IntercambioRebelde {
+	rpc ConsultarData (ConsultaTipo) returns (stream DataSolicitada) {}
 }
 
 message Message {
 	string message = 1;
+}
+
+message Data {
+	string tipo = 1;
+	int32 id = 2;
+	string data = 3;
+}
+
+message ConsultaTipo {
+	string tipo = 1;
+}
+
+message DataSolicitada {
+	int32 id = 1;
+	string data = 2;
+}
+
+message DataID {
+	int32 id = 1;
 }

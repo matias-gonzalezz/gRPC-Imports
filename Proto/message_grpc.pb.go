@@ -18,88 +18,356 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// TestClient is the client API for Test service.
+// IntercambioDataClient is the client API for IntercambioData service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TestClient interface {
-	TestMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+type IntercambioDataClient interface {
+	GuardarData(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Data, error)
+	SolicitarData(ctx context.Context, opts ...grpc.CallOption) (IntercambioData_SolicitarDataClient, error)
 }
 
-type testClient struct {
+type intercambioDataClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTestClient(cc grpc.ClientConnInterface) TestClient {
-	return &testClient{cc}
+func NewIntercambioDataClient(cc grpc.ClientConnInterface) IntercambioDataClient {
+	return &intercambioDataClient{cc}
 }
 
-func (c *testClient) TestMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
-	out := new(Message)
-	err := c.cc.Invoke(ctx, "/grpc.Test/TestMessage", in, out, opts...)
+func (c *intercambioDataClient) GuardarData(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Data, error) {
+	out := new(Data)
+	err := c.cc.Invoke(ctx, "/grpc.IntercambioData/GuardarData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TestServer is the server API for Test service.
-// All implementations must embed UnimplementedTestServer
+func (c *intercambioDataClient) SolicitarData(ctx context.Context, opts ...grpc.CallOption) (IntercambioData_SolicitarDataClient, error) {
+	stream, err := c.cc.NewStream(ctx, &IntercambioData_ServiceDesc.Streams[0], "/grpc.IntercambioData/SolicitarData", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &intercambioDataSolicitarDataClient{stream}
+	return x, nil
+}
+
+type IntercambioData_SolicitarDataClient interface {
+	Send(*Data) error
+	Recv() (*DataID, error)
+	grpc.ClientStream
+}
+
+type intercambioDataSolicitarDataClient struct {
+	grpc.ClientStream
+}
+
+func (x *intercambioDataSolicitarDataClient) Send(m *Data) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *intercambioDataSolicitarDataClient) Recv() (*DataID, error) {
+	m := new(DataID)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// IntercambioDataServer is the server API for IntercambioData service.
+// All implementations must embed UnimplementedIntercambioDataServer
 // for forward compatibility
-type TestServer interface {
-	TestMessage(context.Context, *Message) (*Message, error)
-	mustEmbedUnimplementedTestServer()
+type IntercambioDataServer interface {
+	GuardarData(context.Context, *Message) (*Data, error)
+	SolicitarData(IntercambioData_SolicitarDataServer) error
+	mustEmbedUnimplementedIntercambioDataServer()
 }
 
-// UnimplementedTestServer must be embedded to have forward compatible implementations.
-type UnimplementedTestServer struct {
+// UnimplementedIntercambioDataServer must be embedded to have forward compatible implementations.
+type UnimplementedIntercambioDataServer struct {
 }
 
-func (UnimplementedTestServer) TestMessage(context.Context, *Message) (*Message, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TestMessage not implemented")
+func (UnimplementedIntercambioDataServer) GuardarData(context.Context, *Message) (*Data, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GuardarData not implemented")
 }
-func (UnimplementedTestServer) mustEmbedUnimplementedTestServer() {}
+func (UnimplementedIntercambioDataServer) SolicitarData(IntercambioData_SolicitarDataServer) error {
+	return status.Errorf(codes.Unimplemented, "method SolicitarData not implemented")
+}
+func (UnimplementedIntercambioDataServer) mustEmbedUnimplementedIntercambioDataServer() {}
 
-// UnsafeTestServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TestServer will
+// UnsafeIntercambioDataServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IntercambioDataServer will
 // result in compilation errors.
-type UnsafeTestServer interface {
-	mustEmbedUnimplementedTestServer()
+type UnsafeIntercambioDataServer interface {
+	mustEmbedUnimplementedIntercambioDataServer()
 }
 
-func RegisterTestServer(s grpc.ServiceRegistrar, srv TestServer) {
-	s.RegisterService(&Test_ServiceDesc, srv)
+func RegisterIntercambioDataServer(s grpc.ServiceRegistrar, srv IntercambioDataServer) {
+	s.RegisterService(&IntercambioData_ServiceDesc, srv)
 }
 
-func _Test_TestMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _IntercambioData_GuardarData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Message)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestServer).TestMessage(ctx, in)
+		return srv.(IntercambioDataServer).GuardarData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpc.Test/TestMessage",
+		FullMethod: "/grpc.IntercambioData/GuardarData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestServer).TestMessage(ctx, req.(*Message))
+		return srv.(IntercambioDataServer).GuardarData(ctx, req.(*Message))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Test_ServiceDesc is the grpc.ServiceDesc for Test service.
+func _IntercambioData_SolicitarData_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(IntercambioDataServer).SolicitarData(&intercambioDataSolicitarDataServer{stream})
+}
+
+type IntercambioData_SolicitarDataServer interface {
+	Send(*DataID) error
+	Recv() (*Data, error)
+	grpc.ServerStream
+}
+
+type intercambioDataSolicitarDataServer struct {
+	grpc.ServerStream
+}
+
+func (x *intercambioDataSolicitarDataServer) Send(m *DataID) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *intercambioDataSolicitarDataServer) Recv() (*Data, error) {
+	m := new(Data)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// IntercambioData_ServiceDesc is the grpc.ServiceDesc for IntercambioData service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Test_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "grpc.Test",
-	HandlerType: (*TestServer)(nil),
+var IntercambioData_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.IntercambioData",
+	HandlerType: (*IntercambioDataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TestMessage",
-			Handler:    _Test_TestMessage_Handler,
+			MethodName: "GuardarData",
+			Handler:    _IntercambioData_GuardarData_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SolicitarData",
+			Handler:       _IntercambioData_SolicitarData_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "Proto/message.proto",
+}
+
+// IntercambioCombineClient is the client API for IntercambioCombine service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type IntercambioCombineClient interface {
+	EnvioData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Message, error)
+}
+
+type intercambioCombineClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewIntercambioCombineClient(cc grpc.ClientConnInterface) IntercambioCombineClient {
+	return &intercambioCombineClient{cc}
+}
+
+func (c *intercambioCombineClient) EnvioData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
+	err := c.cc.Invoke(ctx, "/grpc.IntercambioCombine/EnvioData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// IntercambioCombineServer is the server API for IntercambioCombine service.
+// All implementations must embed UnimplementedIntercambioCombineServer
+// for forward compatibility
+type IntercambioCombineServer interface {
+	EnvioData(context.Context, *Data) (*Message, error)
+	mustEmbedUnimplementedIntercambioCombineServer()
+}
+
+// UnimplementedIntercambioCombineServer must be embedded to have forward compatible implementations.
+type UnimplementedIntercambioCombineServer struct {
+}
+
+func (UnimplementedIntercambioCombineServer) EnvioData(context.Context, *Data) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnvioData not implemented")
+}
+func (UnimplementedIntercambioCombineServer) mustEmbedUnimplementedIntercambioCombineServer() {}
+
+// UnsafeIntercambioCombineServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IntercambioCombineServer will
+// result in compilation errors.
+type UnsafeIntercambioCombineServer interface {
+	mustEmbedUnimplementedIntercambioCombineServer()
+}
+
+func RegisterIntercambioCombineServer(s grpc.ServiceRegistrar, srv IntercambioCombineServer) {
+	s.RegisterService(&IntercambioCombine_ServiceDesc, srv)
+}
+
+func _IntercambioCombine_EnvioData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Data)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntercambioCombineServer).EnvioData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.IntercambioCombine/EnvioData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntercambioCombineServer).EnvioData(ctx, req.(*Data))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// IntercambioCombine_ServiceDesc is the grpc.ServiceDesc for IntercambioCombine service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var IntercambioCombine_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.IntercambioCombine",
+	HandlerType: (*IntercambioCombineServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "EnvioData",
+			Handler:    _IntercambioCombine_EnvioData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
+	Metadata: "Proto/message.proto",
+}
+
+// IntercambioRebeldeClient is the client API for IntercambioRebelde service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type IntercambioRebeldeClient interface {
+	ConsultarData(ctx context.Context, in *ConsultaTipo, opts ...grpc.CallOption) (IntercambioRebelde_ConsultarDataClient, error)
+}
+
+type intercambioRebeldeClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewIntercambioRebeldeClient(cc grpc.ClientConnInterface) IntercambioRebeldeClient {
+	return &intercambioRebeldeClient{cc}
+}
+
+func (c *intercambioRebeldeClient) ConsultarData(ctx context.Context, in *ConsultaTipo, opts ...grpc.CallOption) (IntercambioRebelde_ConsultarDataClient, error) {
+	stream, err := c.cc.NewStream(ctx, &IntercambioRebelde_ServiceDesc.Streams[0], "/grpc.IntercambioRebelde/ConsultarData", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &intercambioRebeldeConsultarDataClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type IntercambioRebelde_ConsultarDataClient interface {
+	Recv() (*DataSolicitada, error)
+	grpc.ClientStream
+}
+
+type intercambioRebeldeConsultarDataClient struct {
+	grpc.ClientStream
+}
+
+func (x *intercambioRebeldeConsultarDataClient) Recv() (*DataSolicitada, error) {
+	m := new(DataSolicitada)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// IntercambioRebeldeServer is the server API for IntercambioRebelde service.
+// All implementations must embed UnimplementedIntercambioRebeldeServer
+// for forward compatibility
+type IntercambioRebeldeServer interface {
+	ConsultarData(*ConsultaTipo, IntercambioRebelde_ConsultarDataServer) error
+	mustEmbedUnimplementedIntercambioRebeldeServer()
+}
+
+// UnimplementedIntercambioRebeldeServer must be embedded to have forward compatible implementations.
+type UnimplementedIntercambioRebeldeServer struct {
+}
+
+func (UnimplementedIntercambioRebeldeServer) ConsultarData(*ConsultaTipo, IntercambioRebelde_ConsultarDataServer) error {
+	return status.Errorf(codes.Unimplemented, "method ConsultarData not implemented")
+}
+func (UnimplementedIntercambioRebeldeServer) mustEmbedUnimplementedIntercambioRebeldeServer() {}
+
+// UnsafeIntercambioRebeldeServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IntercambioRebeldeServer will
+// result in compilation errors.
+type UnsafeIntercambioRebeldeServer interface {
+	mustEmbedUnimplementedIntercambioRebeldeServer()
+}
+
+func RegisterIntercambioRebeldeServer(s grpc.ServiceRegistrar, srv IntercambioRebeldeServer) {
+	s.RegisterService(&IntercambioRebelde_ServiceDesc, srv)
+}
+
+func _IntercambioRebelde_ConsultarData_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ConsultaTipo)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(IntercambioRebeldeServer).ConsultarData(m, &intercambioRebeldeConsultarDataServer{stream})
+}
+
+type IntercambioRebelde_ConsultarDataServer interface {
+	Send(*DataSolicitada) error
+	grpc.ServerStream
+}
+
+type intercambioRebeldeConsultarDataServer struct {
+	grpc.ServerStream
+}
+
+func (x *intercambioRebeldeConsultarDataServer) Send(m *DataSolicitada) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+// IntercambioRebelde_ServiceDesc is the grpc.ServiceDesc for IntercambioRebelde service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var IntercambioRebelde_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.IntercambioRebelde",
+	HandlerType: (*IntercambioRebeldeServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ConsultarData",
+			Handler:       _IntercambioRebelde_ConsultarData_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "Proto/message.proto",
 }
