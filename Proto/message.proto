@@ -6,9 +6,9 @@ option go_package = ".";
 package grpc; 
 
 service Test {
-	rpc TestCom (TestMessage) returns (TestMessage) {}	
+	rpc TestMessage (Message) returns (Message) {}	
 }
 
-message TestMessage {
+message Message {
 	string message = 1;
 }
