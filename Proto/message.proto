@@ -7,6 +7,7 @@ package grpc;
 service IntercambioDataNode {
 	rpc GuardarData (Data) returns (Message) {}	
 	rpc EnviarData (DataID) returns (Data) {} 
+	rpc SolicitudCierre (Message) returns (Message) {}
 }
 
 service IntercambioCombine {
@@ -15,10 +16,7 @@ service IntercambioCombine {
 
 service IntercambioRebelde {
 	rpc ConsultarData (ConsultaTipo) returns (stream DataSolicitada) {}
-}
-
-service Cierre {
-	rpc SolicitudCierre (Message) returns (Message) {}	
+	rpc SolicitudCierre (Message) returns (Message) {}
 }
 
 message Message {
