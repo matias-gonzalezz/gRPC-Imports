@@ -5,8 +5,8 @@ option go_package = ".";
 package grpc; 
 
 service IntercambioDataNode {
-	rpc GuardarData (Message) returns (Data) {}	
-	rpc SolicitarData (Data) returns (DataID) {} 
+	rpc GuardarData (Data) returns (Message) {}	
+	rpc SolicitarData (DataID) returns (Data) {} 
 }
 
 service IntercambioCombine {

@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IntercambioDataNodeClient interface {
-	GuardarData(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Data, error)
-	SolicitarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*DataID, error)
+	GuardarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Message, error)
+	SolicitarData(ctx context.Context, in *DataID, opts ...grpc.CallOption) (*Data, error)
 }
 
 type intercambioDataNodeClient struct {
@@ -34,8 +34,8 @@ func NewIntercambioDataNodeClient(cc grpc.ClientConnInterface) IntercambioDataNo
 	return &intercambioDataNodeClient{cc}
 }
 
-func (c *intercambioDataNodeClient) GuardarData(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Data, error) {
-	out := new(Data)
+func (c *intercambioDataNodeClient) GuardarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
 	err := c.cc.Invoke(ctx, "/grpc.IntercambioDataNode/GuardarData", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (c *intercambioDataNodeClient) GuardarData(ctx context.Context, in *Message
 	return out, nil
 }
 
-func (c *intercambioDataNodeClient) SolicitarData(ctx context.Context, in *Data, opts ...grpc.CallOption) (*DataID, error) {
-	out := new(DataID)
+func (c *intercambioDataNodeClient) SolicitarData(ctx context.Context, in *DataID, opts ...grpc.CallOption) (*Data, error) {
+	out := new(Data)
 	err := c.cc.Invoke(ctx, "/grpc.IntercambioDataNode/SolicitarData", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func (c *intercambioDataNodeClient) SolicitarData(ctx context.Context, in *Data,
 // All implementations must embed UnimplementedIntercambioDataNodeServer
 // for forward compatibility
 type IntercambioDataNodeServer interface {
-	GuardarData(context.Context, *Message) (*Data, error)
-	SolicitarData(context.Context, *Data) (*DataID, error)
+	GuardarData(context.Context, *Data) (*Message, error)
+	SolicitarData(context.Context, *DataID) (*Data, error)
 	mustEmbedUnimplementedIntercambioDataNodeServer()
 }
 
@@ -65,10 +65,10 @@ type IntercambioDataNodeServer interface {
 type UnimplementedIntercambioDataNodeServer struct {
 }
 
-func (UnimplementedIntercambioDataNodeServer) GuardarData(context.Context, *Message) (*Data, error) {
+func (UnimplementedIntercambioDataNodeServer) GuardarData(context.Context, *Data) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GuardarData not implemented")
 }
-func (UnimplementedIntercambioDataNodeServer) SolicitarData(context.Context, *Data) (*DataID, error) {
+func (UnimplementedIntercambioDataNodeServer) SolicitarData(context.Context, *DataID) (*Data, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SolicitarData not implemented")
 }
 func (UnimplementedIntercambioDataNodeServer) mustEmbedUnimplementedIntercambioDataNodeServer() {}
@@ -85,7 +85,7 @@ func RegisterIntercambioDataNodeServer(s grpc.ServiceRegistrar, srv IntercambioD
 }
 
 func _IntercambioDataNode_GuardarData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Message)
+	in := new(Data)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -97,13 +97,13 @@ func _IntercambioDataNode_GuardarData_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/grpc.IntercambioDataNode/GuardarData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntercambioDataNodeServer).GuardarData(ctx, req.(*Message))
+		return srv.(IntercambioDataNodeServer).GuardarData(ctx, req.(*Data))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _IntercambioDataNode_SolicitarData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Data)
+	in := new(DataID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func _IntercambioDataNode_SolicitarData_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/grpc.IntercambioDataNode/SolicitarData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntercambioDataNodeServer).SolicitarData(ctx, req.(*Data))
+		return srv.(IntercambioDataNodeServer).SolicitarData(ctx, req.(*DataID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
