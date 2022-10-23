@@ -17,6 +17,10 @@ service IntercambioRebelde {
 	rpc ConsultarData (ConsultaTipo) returns (stream DataSolicitada) {}
 }
 
+service Cierre {
+	rpc SolicitudCierre (Message) returns (Message) {}	
+}
+
 message Message {
 	string message = 1;
 }

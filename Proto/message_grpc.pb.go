@@ -338,3 +338,89 @@ var IntercambioRebelde_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "Proto/message.proto",
 }
+
+// CierreClient is the client API for Cierre service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CierreClient interface {
+	SolicitudCierre(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+}
+
+type cierreClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCierreClient(cc grpc.ClientConnInterface) CierreClient {
+	return &cierreClient{cc}
+}
+
+func (c *cierreClient) SolicitudCierre(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
+	err := c.cc.Invoke(ctx, "/grpc.Cierre/SolicitudCierre", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CierreServer is the server API for Cierre service.
+// All implementations must embed UnimplementedCierreServer
+// for forward compatibility
+type CierreServer interface {
+	SolicitudCierre(context.Context, *Message) (*Message, error)
+	mustEmbedUnimplementedCierreServer()
+}
+
+// UnimplementedCierreServer must be embedded to have forward compatible implementations.
+type UnimplementedCierreServer struct {
+}
+
+func (UnimplementedCierreServer) SolicitudCierre(context.Context, *Message) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SolicitudCierre not implemented")
+}
+func (UnimplementedCierreServer) mustEmbedUnimplementedCierreServer() {}
+
+// UnsafeCierreServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CierreServer will
+// result in compilation errors.
+type UnsafeCierreServer interface {
+	mustEmbedUnimplementedCierreServer()
+}
+
+func RegisterCierreServer(s grpc.ServiceRegistrar, srv CierreServer) {
+	s.RegisterService(&Cierre_ServiceDesc, srv)
+}
+
+func _Cierre_SolicitudCierre_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CierreServer).SolicitudCierre(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.Cierre/SolicitudCierre",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CierreServer).SolicitudCierre(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Cierre_ServiceDesc is the grpc.ServiceDesc for Cierre service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Cierre_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.Cierre",
+	HandlerType: (*CierreServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SolicitudCierre",
+			Handler:    _Cierre_SolicitudCierre_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "Proto/message.proto",
+}
